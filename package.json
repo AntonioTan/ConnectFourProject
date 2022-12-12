@@ -1,0 +1,6 @@
+{
+  "name": "connect-four-project",
+  "dependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.6.5"
+  }
+}
