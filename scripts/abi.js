@@ -5,64 +5,6 @@ const abi = [
 		"type": "constructor"
 	},
 	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "addr",
-				"type": "address"
-			}
-		],
-		"name": "GameCreated",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "winner",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "res",
-				"type": "string"
-			}
-		],
-		"name": "GameOver",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "player2",
-				"type": "address"
-			}
-		],
-		"name": "PlayerJoined",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "turnOwner",
-				"type": "address"
-			}
-		],
-		"name": "TurnChanged",
-		"type": "event"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "int8",
@@ -280,13 +222,7 @@ const abi = [
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_player2",
-				"type": "address"
-			}
-		],
+		"inputs": [],
 		"name": "joinGame",
 		"outputs": [
 			{

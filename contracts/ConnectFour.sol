@@ -28,18 +28,18 @@ contract ConnectFour {
     uint8 nPlayers = 0;
     uint8 gameStatus = 0;
 
-    event GameCreated(
+    /*event GameCreated(
         address addr
     );
     event PlayerJoined(address player2);
     event GameOver(address winner, string res);
-    event TurnChanged(address turnOwner);
+    event TurnChanged(address turnOwner);*/
 
     constructor() {
         player1 = msg.sender;
         nPlayers += 1;
         gameStatus = 0;
-        emit GameCreated(address(this));
+        //emit GameCreated(address(this));
     }
 
     /**
@@ -60,24 +60,22 @@ contract ConnectFour {
      * Player2 joins the game via this function
      * emit PlayerJoined event when joined successfully
      */
-    function joinGame(
-        address _player2
-    ) public returns (bool res, string memory reason) {
+    function joinGame() public returns (bool res, string memory reason) {
         if (gameStatus != 0) {
             if (gameStatus == 1) {
                 return (false, "The game already started");
             } else {
                 return (false, "The game is over");
             }
-        } else if (_player2 == player1) {
+        } else if (msg.sender == player1) {
             return (false, "The two players cannot be the same");
         } else if (nPlayers == 2) {
             return (false, "There are already two players in the game");
         } else {
-            player2 = _player2;
+            player2 = msg.sender;
             nPlayers += 1;
-            gameStatus += 1;
-            emit PlayerJoined(player2);
+            gameStatus = 1;
+            //emit PlayerJoined(player2);
             return (true, "Joined game");
         }
     }
@@ -345,8 +343,8 @@ contract ConnectFour {
             gameStatus += 1;
         }
         currentTurn += 1;
-        address turnOwner = getTurnOwner();
-        emit TurnChanged(turnOwner);
+        //address turnOwner = getTurnOwner();
+        //emit TurnChanged(turnOwner);
         return (true, winnerMsg);
     }
 }

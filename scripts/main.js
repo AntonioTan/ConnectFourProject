@@ -19,7 +19,7 @@ const eth = new Eth(window.ethereum);
 
 eth.accounts().then(function(accounts){
 	account = accounts[0];
-	ConnectFourContract = eth.contract(abi, bytecode, { from: accounts[0], gas: '3000000' });
+	ConnectFourContract = eth.contract(abi, bytecode, { from: accounts[0], gas: '30000000' });
 });
 
 	newGame.addEventListener('click',newGameHandler,false);
@@ -29,7 +29,7 @@ eth.accounts().then(function(accounts){
 		boxes[i].addEventListener('click', clickHandler, false);
 	}
 		//renderInterval = setInterval(render, 1000);
-	render();
+		//render();
 
 
 function newGameHandler() {
@@ -61,16 +61,16 @@ function newGameHandler() {
 function joinGameHandler() {
 	var contractAddress = document.getElementById('contract-ID-tojoin').value.trim();
 	ConnectFour = ConnectFourContract.at(contractAddress);
-	console.log(account);
-	ConnectFour.joinGame(account).then(function(res) {
-		console.log(res);
+	console.log(contractAddress);
+	ConnectFour.joinGame((error, result) => {
+		console.log(result);
 	});
 	document.querySelector('#player').innerHTML ="Player2";
 	player = 2;
 }
 
 function clickHandler() {
-	if (typeof ConnectFour != 'undefined') {
+	/*if (typeof ConnectFour != 'undefined') {
 		ConnectFour.checkWinner().then(function(res) {
 			console.log(res);
 			if (res) {
@@ -80,16 +80,17 @@ function clickHandler() {
 		if (gameOver) {
         			return;
 		}
-	}
+	}*/
 
 	var target = this.getAttribute('data-pos');
-                ConnectFour.makeMove(target).catch(function(err){
+                ConnectFour.makeMove(target/7).catch(function(err){
                     console.log('something went wrong ' +String(err));
                 }).then(function(res){
 		console.log(res);
-		this.removeEventListener('click', clickHandler);
-		render();
+		//this.removeEventListener('click', clickHandler);
+		//render();
                 });
+	ConnectFour.getGameStatus().then(function(res) { console.log(res); });
 }
 
 function render() {
@@ -109,7 +110,7 @@ function render() {
             }
         });
         if (!gameOver){
-            TicTacToe.getTurnOwner().then(function(res){
+            ConnectFour.getTurnOwner().then(function(res){
 	console.log(res);
                 /*if (res == ){
                     document.querySelector('#game-messages').innerHTML = "Your turn !";
