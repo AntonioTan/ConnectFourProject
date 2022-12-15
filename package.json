@@ -1,6 +1,8 @@
 {
-  "name": "connect-four-project",
   "dependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^2.6.5"
+    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
+    "ethjs": "^0.4.0",
+    "express": "^4.18.2",
+    "web3": "^1.8.1"
   }
 }

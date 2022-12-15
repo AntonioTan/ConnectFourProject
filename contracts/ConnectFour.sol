@@ -28,6 +28,9 @@ contract ConnectFour {
     uint8 nPlayers = 0;
     uint8 gameStatus = 0;
 
+    event GameCreated(
+        address addr
+    );
     event PlayerJoined(address player2);
     event GameOver(address winner, string res);
     event TurnChanged(address turnOwner);
@@ -36,6 +39,7 @@ contract ConnectFour {
         player1 = msg.sender;
         nPlayers += 1;
         gameStatus = 0;
+        emit GameCreated(address(this));
     }
 
     /**
