@@ -29,7 +29,7 @@ eth.accounts().then(function(accounts){
 		boxes[i].addEventListener('click', clickHandler, false);
 	}
 		//renderInterval = setInterval(render, 1000);
-		render();
+		//render();
 
 
 function newGameHandler() {
@@ -45,10 +45,7 @@ function newGameHandler() {
 				eth.getTransactionReceipt(txHash, function(err, receipt) {
 					if (receipt) {
 						clearInterval(waitForTransaction);
-						ConnectFour = new web3.eth.Contract(abi, receipt.contractAddress, {
-							from: account,
-							gas: 3000000,
-							gasPrice: '20000000000'});
+						ConnectFour = ConnectFourContract.at(receipt.contractAddress);
 						console.log('success')
 						document.querySelector('#newGameAddress').innerHTML = 
 							"Share the contract address with your opponnent: <br><br>" + String(receipt.contractAddress) + "<br><br>";
@@ -63,16 +60,12 @@ function newGameHandler() {
 
 function joinGameHandler() {
 	var contractAddress = document.getElementById('contract-ID-tojoin').value.trim();
-	ConnectFour = new web3.eth.Contract(abi, contractAddress, {
-		from: account,
-		gas: 3000000,
-		gasPrice: '20000000000'});
+	ConnectFour = ConnectFourContract.at(contractAddress);
 	console.log(contractAddress);
-
-	ConnectFour.methods.joinGame().send({
-		from: account,
-	}).on('error', function(error, receipt) {console.log(error);}).then((result) => {console.log(result);});
-
+	ConnectFour.joinGame().then((result) => {console.log(result);});
+	/*ConnectFour.joinGame((error, result) => {
+		console.log(result);
+	});*/
 	document.querySelector('#player').innerHTML ="Player2";
 	player = 2;
 }
@@ -91,21 +84,19 @@ function clickHandler() {
 	}*/
 
 	var target = this.getAttribute('data-pos');
-                ConnectFour.methods.makeMove(parseInt(target/7)).send({
-		from: account,
-	}).on('error', function(error, receipt) {console.log(error);}).then((result) => {
-		console.log(result);
+                ConnectFour.makeMove(target/7).catch(function(err){
+                    console.log('something went wrong ' +String(err));
+                }).then(function(res){
+		console.log(res);
 		//this.removeEventListener('click', clickHandler);
-		render();
+		//render();
                 });
-	ConnectFour.methods.getGameStatus().call({
-		from: account,
-	}).then((result) => {console.log(result);});
+	ConnectFour.getGameStatus().then(function(res) { console.log(res); });
 }
 
 function render() {
     if (typeof ConnectFour != 'undefined'){
-        ConnectFour.methods.getBoard().then(function(res){
+        ConnectFour.getBoard().then(function(res){
             for (var i = 0; i < 42; i++){
                 var state = res[0][i].words[0];
                 if (state>0){

@@ -236,7 +236,7 @@ const abi = [
 				"type": "string"
 			}
 		],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{

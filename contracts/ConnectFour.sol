@@ -60,7 +60,7 @@ contract ConnectFour {
      * Player2 joins the game via this function
      * emit PlayerJoined event when joined successfully
      */
-    function joinGame() public returns (bool res, string memory reason) {
+    function joinGame() public payable returns (bool res, string memory reason) {
         if (gameStatus != 0) {
             if (gameStatus == 1) {
                 return (false, "The game already started");
