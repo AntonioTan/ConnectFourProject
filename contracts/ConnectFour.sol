@@ -28,6 +28,9 @@ contract ConnectFour {
     uint8 nPlayers = 0;
     uint8 gameStatus = 0;
 
+    // random number used to check turn owner for player1
+    uint player1RandNum;
+
     mapping(address => uint256) balances;
 
     event PlayerJoined(address player2);
@@ -40,6 +43,12 @@ contract ConnectFour {
         nPlayers += 1;
         gameStatus = 0;
         balances[msg.sender] += msg.value;
+        player1RandNum = random();
+    }
+
+    function random() internal returns (uint) {
+        uint randomnumber = uint(keccak256(abi.encodePacked(block.timestamp))) % 2;
+        return randomnumber;
     }
 
     /**
@@ -73,7 +82,7 @@ contract ConnectFour {
             return (false, "The two players cannot be the same");
         } else if (nPlayers == 2) {
             return (false, "There are already two players in the game");
-        } else if(msg.value<balances[player1]) {
+        } else if (msg.value < balances[player1]) {
             emit NotEnoughBet(balances[player1]);
             return (false, "The bet of player2 is smaller than bet of player1");
         } else {
@@ -86,10 +95,10 @@ contract ConnectFour {
         }
     }
 
-
     function getBoard() public view returns (SquareState[6][7] memory) {
         return board;
     }
+
     /**
      * Does the game board has empty fields?
      * bool returns true if yes and false if the board is full
@@ -144,7 +153,7 @@ contract ConnectFour {
      * Get the address of the current turn owner
      */
     function getTurnOwner() public view returns (address) {
-        if (currentTurn % 2 == 0) {
+        if (currentTurn % 2 == player1RandNum) {
             return player1;
         } else {
             return player2;
@@ -198,7 +207,7 @@ contract ConnectFour {
         int8 y = 0;
         return checkContinuousWin(x, y, diffX, diffY);
     }
-    
+
     /**
      * Like checkForwardSlashLeftWin but start from the rightmost column and move from right-top to left-bot
      */
@@ -206,7 +215,7 @@ contract ConnectFour {
         int8 diffX = -1;
         int8 diffY = -1;
         int8 x = int8(row);
-        int8 y = int8(N-1);
+        int8 y = int8(N - 1);
         return checkContinuousWin(x, y, diffX, diffY);
     }
 
@@ -238,18 +247,23 @@ contract ConnectFour {
         int8 diffX = 1;
         int8 diffY = -1;
         int8 x = int8(row);
-        int8 y = int8(N-1);
-        return checkContinuousWin(x, y, diffX, diffY);        
+        int8 y = int8(N - 1);
+        return checkContinuousWin(x, y, diffX, diffY);
     }
 
     /**
      * helper function to check whether there are four continous balls of the same color in one straight line
      * set by diffX and diffY
      */
-    function checkContinuousWin(int8 x, int8 y, int8 diffX, int8 diffY) private view returns (uint8 res) {
+    function checkContinuousWin(
+        int8 x,
+        int8 y,
+        int8 diffX,
+        int8 diffY
+    ) private view returns (uint8 res) {
         uint8 curBlue = 0;
         uint8 curRed = 0;
-        while (x < int8(M) && x>=0 && y>=0 && y < int8(N)) {
+        while (x < int8(M) && x >= 0 && y >= 0 && y < int8(N)) {
             if (board[uint8(y)][uint8(x)] == SquareState.Blue) {
                 curBlue += 1;
                 curRed = 0;
@@ -314,16 +328,24 @@ contract ConnectFour {
         return 0;
     }
 
-    function sendToWinner(address winner_addr) public payable {
-       (bool sent, bytes memory data) = winner_addr.call{value: balances[player1] + balances[player2]}(""); 
-       require(sent, "Failed to send money to winner");
+    function sendToWinner() public payable {
+        require(gameStatus == 2, "Game is not over yet");
+        (bool sent, bytes memory data) = msg.sender.call{
+            value: balances[player1] + balances[player2]
+        }("");
+        require(sent, "Failed to send money to winner");
     }
 
     function sendToAll() public payable {
-       (bool sent1, bytes memory data1) = player1.call{value: balances[player1]}(""); 
-       require(sent1, "Failed to send money to player1");
-       (bool sent2, bytes memory data2) = player2.call{value: balances[player1]}(""); 
-       require(sent1, "Failed to send money to player1");
+        require(gameStatus == 2, "Game is not over yet");
+        (bool sent1, bytes memory data1) = player1.call{
+            value: balances[player1]
+        }("");
+        require(sent1, "Failed to send money to player1");
+        (bool sent2, bytes memory data2) = player2.call{
+            value: balances[player1]
+        }("");
+        require(sent1, "Failed to send money to player1");
     }
 
     function makeMove(
@@ -356,17 +378,18 @@ contract ConnectFour {
         if (winner == getPlayerNumber(msg.sender)) {
             winnerMsg = "You Win";
             gameStatus += 1;
-            sendToWinner(msg.sender);
+            sendToWinner();
             emit GameOver(msg.sender, "Win");
         } else if (winner == 3) {
             winnerMsg = "Draw";
             gameStatus += 1;
             sendToAll();
             emit GameOver(address(0), "Draw");
+        } else {
+            currentTurn += 1;
+            address turnOwner = getTurnOwner();
+            emit TurnChanged(turnOwner);
         }
-        currentTurn += 1;
-        address turnOwner = getTurnOwner();
-        emit TurnChanged(turnOwner);
         return (true, winnerMsg);
     }
 }
