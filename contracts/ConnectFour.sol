@@ -28,14 +28,18 @@ contract ConnectFour {
     uint8 nPlayers = 0;
     uint8 gameStatus = 0;
 
+    mapping(address => uint256) balances;
+
     event PlayerJoined(address player2);
     event GameOver(address winner, string res);
     event TurnChanged(address turnOwner);
+    event NotEnoughBet(uint256 betThreshold);
 
-    constructor() {
+    constructor() payable {
         player1 = msg.sender;
         nPlayers += 1;
         gameStatus = 0;
+        balances[msg.sender] += msg.value;
     }
 
     /**
@@ -58,7 +62,7 @@ contract ConnectFour {
      */
     function joinGame(
         address _player2
-    ) public returns (bool res, string memory reason) {
+    ) public payable returns (bool res, string memory reason) {
         if (gameStatus != 0) {
             if (gameStatus == 1) {
                 return (false, "The game already started");
@@ -69,8 +73,12 @@ contract ConnectFour {
             return (false, "The two players cannot be the same");
         } else if (nPlayers == 2) {
             return (false, "There are already two players in the game");
+        } else if(msg.value<balances[player1]) {
+            emit NotEnoughBet(balances[player1]);
+            return (false, "The bet of player2 is smaller than bet of player1");
         } else {
             player2 = _player2;
+            balances[player2] += msg.value;
             nPlayers += 1;
             gameStatus += 1;
             emit PlayerJoined(player2);
@@ -306,6 +314,18 @@ contract ConnectFour {
         return 0;
     }
 
+    function sendToWinner(address winner_addr) public payable {
+       (bool sent, bytes memory data) = winner_addr.call{value: balances[player1] + balances[player2]}(""); 
+       require(sent, "Failed to send money to winner");
+    }
+
+    function sendToAll() public payable {
+       (bool sent1, bytes memory data1) = player1.call{value: balances[player1]}(""); 
+       require(sent1, "Failed to send money to player1");
+       (bool sent2, bytes memory data2) = player2.call{value: balances[player1]}(""); 
+       require(sent1, "Failed to send money to player1");
+    }
+
     function makeMove(
         uint col
     ) public returns (bool succ, string memory reason) {
@@ -336,9 +356,13 @@ contract ConnectFour {
         if (winner == getPlayerNumber(msg.sender)) {
             winnerMsg = "You Win";
             gameStatus += 1;
+            sendToWinner(msg.sender);
+            emit GameOver(msg.sender, "Win");
         } else if (winner == 3) {
             winnerMsg = "Draw";
             gameStatus += 1;
+            sendToAll();
+            emit GameOver(address(0), "Draw");
         }
         currentTurn += 1;
         address turnOwner = getTurnOwner();

@@ -6,21 +6,43 @@ const WINNER_MSG = 'You Win'
 const Draw_MSG = 'Draw'
 const JOIN_GAME_MSG = 'Joined Game'
 
-
 describe('ConnectFourTest', function () {
   async function deployFixture () {
     const addressZero = ethers.constants.AddressZero
     const [owner, player2] = await ethers.getSigners()
     const ConnectFour = await ethers.getContractFactory('ConnectFour')
-    const connectFour = await ConnectFour.deploy()
+    const connectFour = await ConnectFour.deploy({ value: ethers.utils.parseEther("100") })
     return { connectFour, owner, player2 }
   }
 
   describe('Basic', function () {
+    it('Check player money sent to winner correctly', async function () {
+      const { connectFour, owner, player2 } = await loadFixture(deployFixture)
+      owner_balance = ethers.provider.getBalance(owner.address)
+      expect(await connectFour.getGameStatus()).to.equal(0)
+      await connectFour.joinGame(player2.address, { value: ethers.utils.parseEther("50") })
+      expect(await connectFour.getGameStatus()).to.equal(0)
+      await connectFour.joinGame(player2.address, { value: ethers.utils.parseEther("200") })
+      expect(await connectFour.getGameStatus()).to.equal(1)
+      await connectFour.connect(player2).makeMove(0)
+      await connectFour.connect(owner).makeMove(1)
+      await connectFour.connect(player2).makeMove(0)
+      await connectFour.connect(owner).makeMove(1)
+      await connectFour.connect(player2).makeMove(0)
+      await connectFour.connect(owner).makeMove(1)
+      await connectFour.connect(player2).makeMove(0)
+      await connectFour.connect(owner).makeMove(1)
+      await connectFour.connect(player2).makeMove(0)
+      expect(await connectFour.connect(owner).makeMove(1)).to.changeEtherBalances(
+        [owner, player2],
+        [200, -200]
+      )
+      // expect(await ethers.provider.getBalance(owner.address)).to.equal(ethers.utils.parseEther("200"))
+    })
     it('Valid player addresses created', async function () {
       const { connectFour, owner, player2 } = await loadFixture(deployFixture)
       expect(await connectFour.getGameStatus()).to.equal(0)
-      await connectFour.joinGame(player2.address)
+      await connectFour.joinGame(player2.address, { value: 100 })
       expect(await connectFour.getGameStatus()).to.equal(1)
       const [acc0, acc1, acc2, acc3] = await ethers.getSigners()
       expect(await connectFour.getPlayerNumber(owner.address)).to.equal(1)
@@ -113,27 +135,26 @@ describe('ConnectFourTest', function () {
       await connectFour.connect(player2).makeMove(6)
       await connectFour.connect(owner).makeMove(3)
 
-    //   for(i=0; i<6; i++) {
-    //     console.log(await connectFour.checkRowWin(i));
-    //     console.log(await connectFour.checkForwardSlashRightWin(i));
-    //     console.log(await connectFour.checkForwardSlashLeftWin(i));
-    //   }
-    //   for(i=0; i<6; i++) {
-    //     for(j=0; j<7; j++) {
-    //         state = await connectFour.getBoardState(i, j)
-    //         console.log(state)
-    //     }
-    //   }
-    //   for(i=0; i<7; i++) {
-    //     console.log(await connectFour.checkColWin(i));
-    //   }
+      //   for(i=0; i<6; i++) {
+      //     console.log(await connectFour.checkRowWin(i));
+      //     console.log(await connectFour.checkForwardSlashRightWin(i));
+      //     console.log(await connectFour.checkForwardSlashLeftWin(i));
+      //   }
+      //   for(i=0; i<6; i++) {
+      //     for(j=0; j<7; j++) {
+      //         state = await connectFour.getBoardState(i, j)
+      //         console.log(state)
+      //     }
+      //   }
+      //   for(i=0; i<7; i++) {
+      //     console.log(await connectFour.checkColWin(i));
+      //   }
       expect(await connectFour.getColState(4)).to.equal(5)
       expect(await connectFour.getColState(6)).to.equal(6)
       expect(await connectFour.checkWinner()).to.equal(1)
       expect(await connectFour.checkForwardSlashRightWin(5)).to.equal(1)
-
     })
-    it("Generate right winner in backslashleft", async function(){
+    it('Generate right winner in backslashleft', async function () {
       const { connectFour, owner, player2 } = await loadFixture(deployFixture)
       connectFour.joinGame(player2.address)
       await connectFour.connect(owner).makeMove(5)
@@ -160,7 +181,7 @@ describe('ConnectFourTest', function () {
       expect(await connectFour.checkWinner()).to.equal(1)
       expect(await connectFour.checkBackSlashLeftWin(5)).to.equal(1)
     })
-    it("Generate right winner in forwardslashleft", async function() {
+    it('Generate right winner in forwardslashleft', async function () {
       const { connectFour, owner, player2 } = await loadFixture(deployFixture)
       connectFour.joinGame(player2.address)
       await connectFour.connect(owner).makeMove(6)
@@ -188,11 +209,11 @@ describe('ConnectFourTest', function () {
       await connectFour.connect(owner).makeMove(4)
       await connectFour.connect(player2).makeMove(5)
       await connectFour.connect(owner).makeMove(3)
-    //   console.log(await connectFour.getBoard())
+      //   console.log(await connectFour.getBoard())
       expect(await connectFour.checkWinner()).to.equal(1)
       expect(await connectFour.checkForwardSlashLeftWin(0)).to.equal(1)
-    }) 
-    it("Generate right winner in backslashright", async function() {
+    })
+    it('Generate right winner in backslashright', async function () {
       const { connectFour, owner, player2 } = await loadFixture(deployFixture)
       connectFour.joinGame(player2.address)
       await connectFour.connect(owner).makeMove(0)
@@ -223,7 +244,7 @@ describe('ConnectFourTest', function () {
       console.log(await connectFour.getBoard())
       expect(await connectFour.checkWinner()).to.equal(1)
       expect(await connectFour.checkBackSlashRightWin(0)).to.equal(1)
-    }) 
+    })
   })
 
   describe('Edge Case', function () {
@@ -241,15 +262,15 @@ describe('ConnectFourTest', function () {
       // As invalid moves are discarded, the owner of current turn should be player1
       expect(await connectFour.getTurnOwner()).to.equal(owner.address)
     })
-    it("Refuse invalid column move", async function() {
+    it('Refuse invalid column move', async function () {
       const { connectFour, owner, player2 } = await loadFixture(deployFixture)
       connectFour.joinGame(player2.address)
       connectFour.connect(owner).makeMove(-1)
-      for(i = 0; i<7; i++) {
+      for (i = 0; i < 7; i++) {
         expect(await connectFour.getColState(i)).to.equal(0)
       }
       connectFour.connect(owner).makeMove(10)
-      for(i = 0; i<7; i++) {
+      for (i = 0; i < 7; i++) {
         expect(await connectFour.getColState(i)).to.equal(0)
       }
     })
