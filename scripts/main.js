@@ -9,6 +9,8 @@ var gameOver = false;
 var ConnectFourContract;
 var ConnectFour;
 var account;
+var started = false;
+var isTurn = false;
 
 if (typeof web3 !== 'undefined') {
     web3 = new Web3(window.ethereum);
@@ -22,14 +24,15 @@ eth.accounts().then(function(accounts){
 	ConnectFourContract = eth.contract(abi, bytecode, { from: accounts[0], gas: '30000000' });
 });
 
-	newGame.addEventListener('click',newGameHandler,false);
-	joinGame.addEventListener('click',joinGameHandler, false);
+newGame.addEventListener('click',newGameHandler,false);
+joinGame.addEventListener('click',joinGameHandler, false);
     
-	for(var i = 0; i < 42; i++) {
-		boxes[i].addEventListener('click', clickHandler, false);
-	}
-		//renderInterval = setInterval(render, 1000);
-		render();
+for(var i = 0; i < 42; i++) {
+	boxes[i].addEventListener('click', clickHandler, false);
+}
+
+renderInterval = setInterval(render, 1000);
+render();
 
 
 function newGameHandler() {
@@ -49,7 +52,7 @@ function newGameHandler() {
 							from: account,
 							gas: 3000000,
 							gasPrice: '20000000000'});
-						console.log('success')
+						console.log('create success')
 						document.querySelector('#newGameAddress').innerHTML = 
 							"Share the contract address with your opponnent: <br><br>" + String(receipt.contractAddress) + "<br><br>";
 						document.querySelector('#player').innerHTML ="Player1"
@@ -67,67 +70,84 @@ function joinGameHandler() {
 		from: account,
 		gas: 3000000,
 		gasPrice: '20000000000'});
-	console.log(contractAddress);
 
 	ConnectFour.methods.joinGame().send({
 		from: account,
-	}).on('error', function(error, receipt) {console.log(error);}).then((result) => {console.log(result);});
+	}).on('error', function(error, receipt) {console.log(error);}).then((result) => {console.log('join success');});
 
 	document.querySelector('#player').innerHTML ="Player2";
 	player = 2;
 }
 
 function clickHandler() {
-	/*if (typeof ConnectFour != 'undefined') {
-		ConnectFour.checkWinner().then(function(res) {
-			console.log(res);
-			if (res) {
-				gameOver = true;
-			}
-		});
-		if (gameOver) {
+	if (typeof ConnectFour != 'undefined') {
+		if (gameOver || !isTurn) {
         			return;
 		}
-	}*/
 
-	var target = this.getAttribute('data-pos');
-                ConnectFour.methods.makeMove(parseInt(target/7)).send({
-		from: account,
-	}).on('error', function(error, receipt) {console.log(error);}).then((result) => {
-		console.log(result);
-		//this.removeEventListener('click', clickHandler);
-		render();
-                });
-	ConnectFour.methods.getGameStatus().call({
-		from: account,
-	}).then((result) => {console.log(result);});
+		var target = this.getAttribute('data-pos');
+		target = parseInt(target%7);
+                	ConnectFour.methods.makeMove(target).send({
+			from: account,
+		}).on('error', function(error, receipt) {console.log(error);}).then((result) => {
+			//console.log(result);
+			//this.removeEventListener('click', clickHandler);
+			render();
+	                });
+	}
 }
 
+
 function render() {
-    if (typeof ConnectFour != 'undefined'){
-        ConnectFour.methods.getBoard().then(function(res){
-            for (var i = 0; i < 42; i++){
-                var state = res[0][i].words[0];
-                if (state>0){
-                    if (state==1){
-                        boxes[i].className = 'x';
-                        boxes[i].innerHTML = 'x';
-                    } else{
-                        boxes[i].className = 'o';
-                        boxes[i].innerHTML = 'o';
-                    }
-                }
-            }
-        });
-        if (!gameOver){
-            ConnectFour.getTurnOwner().then(function(res){
-	console.log(res);
-                /*if (res == ){
-                    document.querySelector('#game-messages').innerHTML = "Your turn !";
-                } else {
-                    document.querySelector('#game-messages').innerHTML = "Not your turn !";
-                }*/
-            });
-        }   
-    }
+	if (typeof ConnectFour != 'undefined') {
+		ConnectFour.methods.getGameStatus().call({from: account}).then(function(res) {
+			if (res != 0) {
+				started = true;
+			}
+		});
+		if (!started) {
+			return;
+		}
+
+		ConnectFour.methods.getBoard().call({from: account}).then(function(res) {
+			console.log(res);
+			for (var i = 0; i < 7; i++) {
+				for (var j = 0; j < 6; j++) {
+					var state = res[i][j];
+		    			if (state > 0) {
+						index = (5- j)* 7 + i;
+                    					if (state == 1) {
+                        						boxes[index].className = 'x';
+                        						boxes[index].innerHTML = 'x';
+                    					} else{
+                        						boxes[index].className = 'o';
+                        						boxes[index].innerHTML = 'o';
+						}
+					}
+				}
+			}
+		});
+
+		ConnectFour.methods.checkWinner().call({from: account}).then(function(res) {
+			//console.log(res);
+			if (res != 0) {
+				gameOver = true;
+				if (res == 3) {
+					document.querySelector('#game-messages').innerHTML = "The game draws!"
+				} else {
+					document.querySelector('#game-messages').innerHTML = "Player " + res + " wins!"
+				}
+			} else {
+				ConnectFour.methods.getTurnOwner().call({from: account}).then(function(res) {
+					if (res.toLowerCase() == account.toLowerCase()) {
+						isTurn = true;
+						document.querySelector('#game-messages').innerHTML = "Your turn !";
+					} else {
+						isTurn = false;
+						document.querySelector('#game-messages').innerHTML = "Opponent's turn !";
+					}
+				});
+			}
+		});
+	}
 }

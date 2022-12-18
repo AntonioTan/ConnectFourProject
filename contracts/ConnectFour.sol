@@ -60,19 +60,19 @@ contract ConnectFour {
      * Player2 joins the game via this function
      * emit PlayerJoined event when joined successfully
      */
-    function joinGame() public payable returns (bool res, string memory reason) {
+    function joinGame(address _player2) public payable returns (bool res, string memory reason) {
         if (gameStatus != 0) {
             if (gameStatus == 1) {
                 return (false, "The game already started");
             } else {
                 return (false, "The game is over");
             }
-        } else if (msg.sender == player1) {
+        } else if (_player2 == player1) {
             return (false, "The two players cannot be the same");
         } else if (nPlayers == 2) {
             return (false, "There are already two players in the game");
         } else {
-            player2 = msg.sender;
+            player2 = _player2;
             nPlayers += 1;
             gameStatus = 1;
             //emit PlayerJoined(player2);
