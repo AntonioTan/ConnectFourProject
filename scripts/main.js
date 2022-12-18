@@ -100,13 +100,15 @@ function clickHandler() {
 
 function render() {
 	if (typeof ConnectFour != 'undefined') {
-		ConnectFour.methods.getGameStatus().call({from: account}).then(function(res) {
-			if (res != 0) {
-				started = true;
-			}
-		});
 		if (!started) {
-			return;
+			ConnectFour.methods.getGameStatus().call({from: account}).then(function(res) {
+				if (res != 0) {
+					started = true;
+				}
+			});
+			if (!started) {
+				return;
+			}
 		}
 
 		ConnectFour.methods.getBoard().call({from: account}).then(function(res) {
