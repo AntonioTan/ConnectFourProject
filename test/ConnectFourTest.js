@@ -29,9 +29,9 @@ describe('ConnectFourTest', function () {
       const { connectFour, player1, player2 } = await loadFixture(deployFixture)
       player1_balance = ethers.provider.getBalance(player1.address)
       expect(await connectFour.getGameStatus()).to.equal(0)
-      await connectFour.joinGame(player2.address, { value: ethers.utils.parseEther("50") })
+      await connectFour.connect(player2).joinGame({ value: ethers.utils.parseEther("50") })
       expect(await connectFour.getGameStatus()).to.equal(0)
-      await connectFour.joinGame(player2.address, { value: ethers.utils.parseEther("200") })
+      await connectFour.connect(player2).joinGame({ value: ethers.utils.parseEther("200") })
       expect(await connectFour.getGameStatus()).to.equal(1)
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(0)
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(1)
@@ -55,7 +55,7 @@ describe('ConnectFourTest', function () {
     })
     it("Generate draw result", async function() {
       const { connectFour, player1, player2 } = await loadFixture(deployFixture)
-      await connectFour.joinGame(player2.address, { value: ethers.utils.parseEther("100") })
+      await connectFour.connect(player2).joinGame({ value: ethers.utils.parseEther("100") })
 
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(0)
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(1)
@@ -118,21 +118,21 @@ describe('ConnectFourTest', function () {
     it('Valid player addresses created', async function () {
       const { connectFour, player1, player2 } = await loadFixture(deployFixture)
       expect(await connectFour.getGameStatus()).to.equal(0)
-      await connectFour.joinGame(player2.address, { value: ethers.utils.parseEther("100") })
+      await connectFour.connect(player2).joinGame({ value: ethers.utils.parseEther("100") })
       expect(await connectFour.getGameStatus()).to.equal(1)
       const [acc0, acc1, acc2, acc3] = await ethers.getSigners()
       expect(await connectFour.getPlayerNumber(player1.address)).to.equal(1)
       expect(await connectFour.getPlayerNumber(player2.address)).to.equal(2)
       expect(await connectFour.getPlayerNumber(acc3.address)).to.equal(0)
-      expect(await connectFour.getPlayerTotal()).to.equal(2)
-      await connectFour.joinGame(acc2.address)
+      //expect(await connectFour.getPlayerTotal()).to.equal(2)
+      await connectFour.connect(acc2).joinGame()
       expect(await connectFour.getPlayerNumber(acc2.address)).to.equal(0)
-      expect(await connectFour.getPlayerTotal()).to.equal(2)
+      //expect(await connectFour.getPlayerTotal()).to.equal(2)
       expect(await connectFour.getGameStatus()).to.equal(1)
     })
     it('Valid column positions filled', async function () {
       const { connectFour, player1, player2 } = await loadFixture(deployFixture)
-      await connectFour.joinGame(player2.address, { value: ethers.utils.parseEther("100") })
+      await connectFour.connect(player2).joinGame({ value: ethers.utils.parseEther("100") })
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(1)
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(0)
       expect(await connectFour.getColState(0)).to.equal(1)
@@ -144,7 +144,7 @@ describe('ConnectFourTest', function () {
       const { connectFour, player1, player2 } = await loadFixture(deployFixture)
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(0)
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(1)
-      await connectFour.joinGame(player2.address, { value: ethers.utils.parseEther("100") })
+      await connectFour.connect(player2).joinGame({ value: ethers.utils.parseEther("100") })
       const startPlayerNum = await connectFour.getTurnOwner() == player1.address ? 1: 2 
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player2 : player1 ).makeMove(0)
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(1)
@@ -166,7 +166,7 @@ describe('ConnectFourTest', function () {
       const { connectFour, player1, player2 } = await loadFixture(deployFixture)
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(0)
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(1)
-      await connectFour.joinGame(player2.address, { value: ethers.utils.parseEther("100") })
+      await connectFour.connect(player2).joinGame({ value: ethers.utils.parseEther("100") })
       const startPlayerNum = await connectFour.getTurnOwner() == player1.address ? 1: 2 
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(0)
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(1)
@@ -191,7 +191,7 @@ describe('ConnectFourTest', function () {
       const { connectFour, player1, player2 } = await loadFixture(deployFixture)
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(0)
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(1)
-      await connectFour.joinGame(player2.address, { value: ethers.utils.parseEther("100") })
+      await connectFour.connect(player2).joinGame({ value: ethers.utils.parseEther("100") })
       const startPlayerNum = await connectFour.getTurnOwner() == player1.address ? 1: 2 
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(1)
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(2)
@@ -236,7 +236,7 @@ describe('ConnectFourTest', function () {
     })
     it('Generate right winner in backslashleft', async function () {
       const { connectFour, player1, player2 } = await loadFixture(deployFixture)
-      await connectFour.joinGame(player2.address, { value: ethers.utils.parseEther("100") })
+      await connectFour.connect(player2).joinGame({ value: ethers.utils.parseEther("100") })
       const startPlayer = await connectFour.getTurnOwner() == player1.address ? player1 : player2
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2).makeMove(5)
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2).makeMove(4)
@@ -266,7 +266,7 @@ describe('ConnectFourTest', function () {
     })
     it('Generate right winner in forwardslashleft', async function () {
       const { connectFour, player1, player2 } = await loadFixture(deployFixture)
-      await connectFour.joinGame(player2.address, { value: ethers.utils.parseEther("100") })
+      await connectFour.connect(player2).joinGame({ value: ethers.utils.parseEther("100") })
       const startPlayerNum = await connectFour.getTurnOwner() == player1.address ? 1 : 2
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(6)
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(1)
@@ -300,7 +300,7 @@ describe('ConnectFourTest', function () {
     it('Generate right winner in backslashright', async function () {
       const { connectFour, player1, player2 } = await loadFixture(deployFixture)
       const startPlayerNum = await connectFour.getTurnOwner() == player1.address ? 1 : 2
-      await connectFour.joinGame(player2.address, { value: ethers.utils.parseEther("100") })
+      await connectFour.connect(player2).joinGame({ value: ethers.utils.parseEther("100") })
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(0)
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(5)
       await connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(4)
@@ -335,7 +335,7 @@ describe('ConnectFourTest', function () {
   describe('Edge Case', function () {
     it('One column is full, then should forbid adding more balls.', async function () {
       const { connectFour, player1, player2 } = await loadFixture(deployFixture)
-      await connectFour.joinGame(player2.address, { value: ethers.utils.parseEther("100") })
+      await connectFour.connect(player2).joinGame({ value: ethers.utils.parseEther("100") })
       const startPlayerAddr = await connectFour.getTurnOwner()
       for (i = 0; i < 10; i++) {
         if (i % 2 == 0) {
@@ -350,7 +350,7 @@ describe('ConnectFourTest', function () {
     })
     it('Refuse invalid column move', async function () {
       const { connectFour, player1, player2 } = await loadFixture(deployFixture)
-      await connectFour.joinGame(player2.address, { value: ethers.utils.parseEther("100") })
+      await connectFour.connect(player2).joinGame({ value: ethers.utils.parseEther("100") })
       connectFour.connect(await connectFour.getTurnOwner() == player1.address ? player1 : player2 ).makeMove(-1)
       for (i = 0; i < 7; i++) {
         expect(await connectFour.getColState(i)).to.equal(0)

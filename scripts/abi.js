@@ -1,8 +1,21 @@
 const abi = [
 	{
 		"inputs": [],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
 		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "turnOwner",
+				"type": "address"
+			}
+		],
+		"name": "TurnChanged",
+		"type": "event"
 	},
 	{
 		"inputs": [
@@ -197,19 +210,6 @@ const abi = [
 	},
 	{
 		"inputs": [],
-		"name": "getPlayerTotal",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "num",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
 		"name": "getTurnOwner",
 		"outputs": [
 			{
@@ -261,6 +261,20 @@ const abi = [
 			}
 		],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "sendToAll",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "sendToWinner",
+		"outputs": [],
+		"stateMutability": "payable",
 		"type": "function"
 	}
 ]

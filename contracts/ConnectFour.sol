@@ -33,13 +33,11 @@ contract ConnectFour {
 
     mapping(address => uint256) balances;
 
-    event GameCreated(
-        address addr
-    );
-    event PlayerJoined(address player2);
-    event GameOver(address winner, string res);
+    //event GameCreated(address addr);
+    //event PlayerJoined(address player2);
+    //event GameOver(address winner, string res);
     event TurnChanged(address turnOwner);
-    event NotEnoughBet(uint256 betThreshold);
+    //event NotEnoughBet(uint256 betThreshold);
 
     constructor() payable {
         player1 = msg.sender;
@@ -58,9 +56,9 @@ contract ConnectFour {
     /**
      * Get the player number
      */
-    function getPlayerTotal() public view returns (uint num) {
+    /*function getPlayerTotal() public view returns (uint num) {
         return nPlayers;
-    }
+    }*/
 
     /**
      * Get the game status
@@ -73,26 +71,28 @@ contract ConnectFour {
      * Player2 joins the game via this function
      * emit PlayerJoined event when joined successfully
      */
-    function joinGame(address _player2) public payable returns (bool res, string memory reason) {
+    function joinGame() public payable returns (bool res, string memory reason) {
         if (gameStatus != 0) {
             if (gameStatus == 1) {
                 return (false, "The game already started");
             } else {
                 return (false, "The game is over");
             }
-        } else if (_player2 == player1) {
+        } else if (msg.sender == player1) {
             return (false, "The two players cannot be the same");
         } else if (nPlayers == 2) {
             return (false, "There are already two players in the game");
         } else if (msg.value < balances[player1]) {
-            emit NotEnoughBet(balances[player1]);
+            //emit NotEnoughBet(balances[player1]);
             return (false, "The bet of player2 is smaller than bet of player1");
         } else {
-            player2 = _player2;
+            player2 = msg.sender;
             balances[player2] += msg.value;
             nPlayers += 1;
             gameStatus = 1;
             //emit PlayerJoined(player2);
+            address turnOwner = getTurnOwner();
+            emit TurnChanged(turnOwner);
             return (true, "Joined game");
         }
     }
@@ -382,20 +382,17 @@ contract ConnectFour {
             winnerMsg = "You Win";
             gameStatus += 1;
             sendToWinner();
-            emit GameOver(msg.sender, "Win");
+            //emit GameOver(msg.sender, "Win");
         } else if (winner == 3) {
             winnerMsg = "Draw";
             gameStatus += 1;
             sendToAll();
-            emit GameOver(address(0), "Draw");
+            //emit GameOver(address(0), "Draw");
         } else {
             currentTurn += 1;
             address turnOwner = getTurnOwner();
             emit TurnChanged(turnOwner);
         }
-        currentTurn += 1;
-        //address turnOwner = getTurnOwner();
-        //emit TurnChanged(turnOwner);
         return (true, winnerMsg);
     }
 }
