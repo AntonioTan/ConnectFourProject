@@ -144,7 +144,7 @@ function render() {
 			}
 		}
 
-		ConnectFour.methods.checkWinner().call({from: account}).then(function(res) {
+		ConnectFour.methods.getWinner().call({from: account}).then(function(res) {
 			//console.log(res);
 			if (res != 0) {
 				if (!gameOver) {

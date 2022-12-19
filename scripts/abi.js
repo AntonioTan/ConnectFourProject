@@ -5,19 +5,6 @@ const abi = [
 		"type": "constructor"
 	},
 	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "turnOwner",
-				"type": "address"
-			}
-		],
-		"name": "TurnChanged",
-		"type": "event"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "int8",
@@ -216,6 +203,19 @@ const abi = [
 				"internalType": "address",
 				"name": "",
 				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getWinner",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "num",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",

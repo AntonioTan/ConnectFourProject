@@ -27,6 +27,7 @@ contract ConnectFour {
     // number of players in current game
     uint8 nPlayers = 0;
     uint8 gameStatus = 0;
+    uint8 winner = 0;
 
     // random number used to check turn owner for player1
     uint player1RandNum;
@@ -36,7 +37,7 @@ contract ConnectFour {
     //event GameCreated(address addr);
     //event PlayerJoined(address player2);
     //event GameOver(address winner, string res);
-    event TurnChanged(address turnOwner);
+    //event TurnChanged(address turnOwner);
     //event NotEnoughBet(uint256 betThreshold);
 
     constructor() payable {
@@ -54,11 +55,11 @@ contract ConnectFour {
     }
 
     /**
-     * Get the player number
+     * Get the winner number
      */
-    /*function getPlayerTotal() public view returns (uint num) {
-        return nPlayers;
-    }*/
+    function getWinner() public view returns (uint num) {
+        return winner;
+    }
 
     /**
      * Get the game status
@@ -91,8 +92,8 @@ contract ConnectFour {
             nPlayers += 1;
             gameStatus = 1;
             //emit PlayerJoined(player2);
-            address turnOwner = getTurnOwner();
-            emit TurnChanged(turnOwner);
+            //address turnOwner = getTurnOwner();
+            //emit TurnChanged(turnOwner);
             return (true, "Joined game");
         }
     }
@@ -348,7 +349,7 @@ contract ConnectFour {
         (bool sent2, bytes memory data2) = player2.call{
             value: balances[player1]
         }("");
-        require(sent1, "Failed to send money to player1");
+        require(sent1, "Failed to send money to player2");
     }
 
     function makeMove(
@@ -376,7 +377,7 @@ contract ConnectFour {
         }
         board[col][colState[col]] = getPlayerMove(msg.sender);
         colState[col] += 1;
-        uint8 winner = checkWinner();
+        winner = checkWinner();
         string memory winnerMsg = "No winner yet";
         if (winner == getPlayerNumber(msg.sender)) {
             winnerMsg = "You Win";
@@ -390,8 +391,8 @@ contract ConnectFour {
             //emit GameOver(address(0), "Draw");
         } else {
             currentTurn += 1;
-            address turnOwner = getTurnOwner();
-            emit TurnChanged(turnOwner);
+            //address turnOwner = getTurnOwner();
+            //emit TurnChanged(turnOwner);
         }
         return (true, winnerMsg);
     }
