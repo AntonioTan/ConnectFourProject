@@ -37,11 +37,11 @@ function newGameHandler() {
 	if (typeof(ConnectFour) != 'undefined'){
         		console.log("There seems to be an existing game going on already");
 	} else if (typeof(account) != 'undefined') {
-		var val = document.getElementById('value-toplay').value;
-		ConnectFourContract = eth.contract(abi, bytecode, { from: account, gas: '30000000', value: val });
+		var val = document.getElementById('value-toplay').value * 1000000000;
+		ConnectFourContract = eth.contract(abi, bytecode, { from: account, gas: '10000000', gasPrice: '2000000000', value: val });
 		ConnectFourContract.new(function(deployError, txHash) {
 			if (deployError) {
-				return el('#response').innerHTML = 'Hmm... there was an error: ' + String(deployError);
+				document.querySelector('#response').innerHTML = 'Hmm... there was an error: ' + String(deployError);
 			}  
 
 			var waitForTransaction = setInterval(function() {
@@ -51,7 +51,7 @@ function newGameHandler() {
 						ConnectFour = new web3.eth.Contract(abi, receipt.contractAddress, {
 							from: account,
 							gas: 3000000,
-							gasPrice: '20000000000'});
+							gasPrice: '2000000000'});
 						console.log('create')
 						/*ConnectFour.events.allEvents({}, function(error, event) {
 							console.log(event);
@@ -73,7 +73,7 @@ function joinGameHandler() {
 	ConnectFour = new web3.eth.Contract(abi, contractAddress, {
 		from: account,
 		gas: 3000000,
-		gasPrice: '20000000000'});
+		gasPrice: '2000000000'});
 	
 	web3.eth.getBalance(contractAddress).then((result) => {
 		ConnectFour.methods.joinGame().send({
