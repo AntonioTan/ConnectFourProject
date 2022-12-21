@@ -27,21 +27,24 @@ contract ConnectFour {
     // number of players in current game
     uint8 nPlayers = 0;
     uint8 gameStatus = 0;
+    uint8 winner = 0;
 
     // random number used to check turn owner for player1
     uint player1RandNum;
 
     mapping(address => uint256) balances;
 
-    event PlayerJoined(address player2);
-    event GameOver(address winner, string res);
-    event TurnChanged(address turnOwner);
-    event NotEnoughBet(uint256 betThreshold);
+    //event GameCreated(address addr);
+    //event PlayerJoined(address player2);
+    //event GameOver(address winner, string res);
+    //event TurnChanged(address turnOwner);
+    //event NotEnoughBet(uint256 betThreshold);
 
     constructor() payable {
         player1 = msg.sender;
         nPlayers += 1;
         gameStatus = 0;
+        //emit GameCreated(address(this));
         balances[msg.sender] += msg.value;
         player1RandNum = random();
     }
@@ -52,10 +55,10 @@ contract ConnectFour {
     }
 
     /**
-     * Get the player number
+     * Get the winner number
      */
-    function getPlayerTotal() public view returns (uint num) {
-        return nPlayers;
+    function getWinner() public view returns (uint num) {
+        return winner;
     }
 
     /**
@@ -69,36 +72,36 @@ contract ConnectFour {
      * Player2 joins the game via this function
      * emit PlayerJoined event when joined successfully
      */
-    function joinGame(
-        address _player2
-    ) public payable returns (bool res, string memory reason) {
+    function joinGame() public payable returns (bool res, string memory reason) {
         if (gameStatus != 0) {
             if (gameStatus == 1) {
                 return (false, "The game already started");
             } else {
                 return (false, "The game is over");
             }
-        } else if (_player2 == player1) {
+        } else if (msg.sender == player1) {
             return (false, "The two players cannot be the same");
         } else if (nPlayers == 2) {
             return (false, "There are already two players in the game");
         } else if (msg.value < balances[player1]) {
-            emit NotEnoughBet(balances[player1]);
+            //emit NotEnoughBet(balances[player1]);
             return (false, "The bet of player2 is smaller than bet of player1");
         } else {
-            player2 = _player2;
+            player2 = msg.sender;
             balances[player2] += msg.value;
             nPlayers += 1;
-            gameStatus += 1;
-            emit PlayerJoined(player2);
+            gameStatus = 1;
+            //emit PlayerJoined(player2);
+            //address turnOwner = getTurnOwner();
+            //emit TurnChanged(turnOwner);
             return (true, "Joined game");
         }
     }
 
+
     function getBoard() public view returns (SquareState[6][7] memory) {
         return board;
     }
-
     /**
      * Does the game board has empty fields?
      * bool returns true if yes and false if the board is full
@@ -160,6 +163,7 @@ contract ConnectFour {
         }
     }
 
+
     /**
      * Check whether the given row has four continuous positions filled with balls of the same color
      * return 1 if player 1 wins(Red wins)
@@ -207,7 +211,7 @@ contract ConnectFour {
         int8 y = 0;
         return checkContinuousWin(x, y, diffX, diffY);
     }
-
+    
     /**
      * Like checkForwardSlashLeftWin but start from the rightmost column and move from right-top to left-bot
      */
@@ -345,7 +349,7 @@ contract ConnectFour {
         (bool sent2, bytes memory data2) = player2.call{
             value: balances[player1]
         }("");
-        require(sent1, "Failed to send money to player1");
+        require(sent1, "Failed to send money to player2");
     }
 
     function makeMove(
@@ -373,22 +377,22 @@ contract ConnectFour {
         }
         board[col][colState[col]] = getPlayerMove(msg.sender);
         colState[col] += 1;
-        uint8 winner = checkWinner();
+        winner = checkWinner();
         string memory winnerMsg = "No winner yet";
         if (winner == getPlayerNumber(msg.sender)) {
             winnerMsg = "You Win";
             gameStatus += 1;
             sendToWinner();
-            emit GameOver(msg.sender, "Win");
+            //emit GameOver(msg.sender, "Win");
         } else if (winner == 3) {
             winnerMsg = "Draw";
             gameStatus += 1;
             sendToAll();
-            emit GameOver(address(0), "Draw");
+            //emit GameOver(address(0), "Draw");
         } else {
             currentTurn += 1;
-            address turnOwner = getTurnOwner();
-            emit TurnChanged(turnOwner);
+            //address turnOwner = getTurnOwner();
+            //emit TurnChanged(turnOwner);
         }
         return (true, winnerMsg);
     }
