@@ -133,6 +133,13 @@ const abi = [
 	},
 	{
 		"inputs": [],
+		"name": "declareTimeOut",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "getBoard",
 		"outputs": [
 			{
@@ -223,6 +230,19 @@ const abi = [
 	},
 	{
 		"inputs": [],
+		"name": "isTimeOut",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "timeout",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "joinGame",
 		"outputs": [
 			{
@@ -261,20 +281,6 @@ const abi = [
 			}
 		],
 		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "sendToAll",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "sendToWinner",
-		"outputs": [],
-		"stateMutability": "payable",
 		"type": "function"
 	}
 ]

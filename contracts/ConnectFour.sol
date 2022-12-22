@@ -31,6 +31,7 @@ contract ConnectFour {
 
     // random number used to check turn owner for player1
     uint player1RandNum;
+    uint lastTime;
 
     mapping(address => uint256) balances;
 
@@ -69,6 +70,34 @@ contract ConnectFour {
     }
 
     /**
+     * Check if there is a timeout
+     */
+    function isTimeOut() public view returns (bool timeout) {
+        require(gameStatus == 1, "game has not started yet or already ended");
+        return block.number - lastTime > 10;
+    }
+
+    /**
+     * Declare there is a timeout
+     */
+    function declareTimeOut() public {
+        require(gameStatus == 1, "game has not started yet or already ended");
+        require(block.number - lastTime > 10, "there is not a timeout");
+        currentTurn += 1;
+        address winnerAddr = getTurnOwner();
+        (bool sent, bytes memory data) = winnerAddr.call{
+            value: balances[player1] + balances[player2]
+        }("");
+        require(sent, "Failed to send money to winner");
+        if (winnerAddr == player1) {
+            winner = 1;
+        } else {
+            winner = 2;
+        }
+        gameStatus = 2;
+    }
+
+    /**
      * Player2 joins the game via this function
      * emit PlayerJoined event when joined successfully
      */
@@ -91,6 +120,7 @@ contract ConnectFour {
             balances[player2] += msg.value;
             nPlayers += 1;
             gameStatus = 1;
+            lastTime = block.number;
             //emit PlayerJoined(player2);
             //address turnOwner = getTurnOwner();
             //emit TurnChanged(turnOwner);
@@ -156,6 +186,7 @@ contract ConnectFour {
      * Get the address of the current turn owner
      */
     function getTurnOwner() public view returns (address) {
+        require(gameStatus > 0, "Game has not started yet");
         if (currentTurn % 2 == player1RandNum) {
             return player1;
         } else {
@@ -332,7 +363,7 @@ contract ConnectFour {
         return 0;
     }
 
-    function sendToWinner() public payable {
+    function sendToWinner() private {
         require(gameStatus == 2, "Game is not over yet");
         (bool sent, bytes memory data) = msg.sender.call{
             value: balances[player1] + balances[player2]
@@ -340,7 +371,7 @@ contract ConnectFour {
         require(sent, "Failed to send money to winner");
     }
 
-    function sendToAll() public payable {
+    function sendToAll() private {
         require(gameStatus == 2, "Game is not over yet");
         (bool sent1, bytes memory data1) = player1.call{
             value: balances[player1]
@@ -375,8 +406,13 @@ contract ConnectFour {
             string memory errMsg = "Invalid Move: This column is full already";
             return (false, errMsg);
         }
+        if (isTimeOut()) {
+            string memory errMsg = "Game has ended because of a timeout";
+            return (false, errMsg);
+        }
         board[col][colState[col]] = getPlayerMove(msg.sender);
         colState[col] += 1;
+        lastTime = block.number;
         winner = checkWinner();
         string memory winnerMsg = "No winner yet";
         if (winner == getPlayerNumber(msg.sender)) {

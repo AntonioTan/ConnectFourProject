@@ -11,6 +11,7 @@ var ConnectFour
 var account
 var started = false
 var isTurn
+var timeOut = false
 
 if (typeof web3 !== 'undefined') {
   web3 = new Web3(window.ethereum)
@@ -161,8 +162,7 @@ function renderBoard () {
 function render () {
   if (typeof ConnectFour != 'undefined') {
     if (!started) {
-      ConnectFour.methods
-        .getGameStatus()
+      ConnectFour.methods.getGameStatus()
         .call({ from: account })
         .then(function (res) {
           if (res != 0) {
@@ -174,8 +174,7 @@ function render () {
       }
     }
 
-    ConnectFour.methods
-      .getWinner()
+    ConnectFour.methods.getWinner()
       .call({ from: account })
       .then(function (res) {
         //console.log(res);
@@ -192,8 +191,22 @@ function render () {
             }
           }
         } else {
-          ConnectFour.methods
-            .getTurnOwner()
+          if (!isTurn && !timeOut) {
+          ConnectFour.methods.isTimeOut()
+            .call({ from: account })
+            .then(function (res) {
+              if (res) {
+                ConnectFour.methods.declareTimeOut()
+                  .send({ from: account })
+                  .on('error', function (error, receipt) {
+                    console.log(error)
+                  })
+                timeOut = true;
+                return;
+              }
+          });
+          }
+          ConnectFour.methods.getTurnOwner()
             .call({ from: account })
             .then(function (res) {
               if (res.toLowerCase() == account.toLowerCase()) {
