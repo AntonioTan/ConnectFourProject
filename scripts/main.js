@@ -12,6 +12,7 @@ var account
 var started = false
 var isTurn
 var timeOut = false
+var reentry = false;
 
 if (typeof web3 !== 'undefined') {
   web3 = new Web3(window.ethereum)
@@ -59,7 +60,7 @@ function newGameHandler () {
               gas: 3000000,
               gasPrice: '2000000000'
             })
-            console.log('create')
+            console.log('create');
             /*ConnectFour.events.allEvents({}, function(error, event) {
 							console.log(event);
 							render();
@@ -78,6 +79,12 @@ function newGameHandler () {
 }
 
 function joinGameHandler () {
+  reentry = true;
+  gameOver = false;
+  started = false;
+  timeOut = false;
+  isTurn = undefined;
+  document.querySelector('#game-messages').innerHTML = '';
   var contractAddress = document
     .getElementById('contract-ID-tojoin')
     .value.trim()
@@ -85,29 +92,46 @@ function joinGameHandler () {
     from: account,
     gas: 3000000,
     gasPrice: '2000000000'
-  })
+  });
 
-  web3.eth.getBalance(contractAddress).then(result => {
-    ConnectFour.methods
-      .joinGame()
-      .send({
-        from: account,
-        value: result
-      })
-      .on('error', function (error, receipt) {
-        console.log(error)
-      })
-      .then(result => {
-        console.log('join')
-        /*ConnectFour.events.allEvents({}, function(error, event) {
-				console.log(event);
-				render();
-			});*/
-      })
-  })
-
-  document.querySelector('#player').innerHTML = 'Player2'
-  player = 2
+  ConnectFour.methods.getPlayerNumber(account).call().then(function (res) {
+          if (res == 1) {
+            document.querySelector('#player').innerHTML = 'Player1';
+            player = 1;
+            var val = document.getElementById('value-toplay').value * 1000000000
+            ConnectFour.methods.joinGame().send({
+              from: account,
+              value: val
+            })
+            .on('error', function (error, receipt) {
+              console.log(error)
+            })
+            .then(result => {
+              console.log('join');
+              reentry = false;
+              document.querySelector('#newGameAddress').innerHTML =
+              'The contract at: ' +
+              String(contractAddress) +
+              ' <br><br>has been reset<br><br>'
+            });
+          } else {
+            document.querySelector('#player').innerHTML = 'Player2';
+            player = 2;
+            web3.eth.getBalance(contractAddress).then(result => {
+              ConnectFour.methods.joinGame().send({
+                from: account,
+                value: result
+              })
+              .on('error', function (error, receipt) {
+                console.log(error)
+              })
+              .then(result => {
+                console.log('join');
+                reentry = false;
+              });
+            });
+          }
+  });
 }
 
 function clickHandler () {
@@ -160,6 +184,7 @@ function renderBoard () {
 }
 
 function render () {
+  if (reentry) {return;}
   if (typeof ConnectFour != 'undefined') {
     if (!started) {
       ConnectFour.methods.getGameStatus()
@@ -168,7 +193,7 @@ function render () {
           if (res != 0) {
             started = true
           }
-        })
+        });
       if (!started) {
         return
       }

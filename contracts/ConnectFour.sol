@@ -105,6 +105,16 @@ contract ConnectFour {
         if (gameStatus != 0) {
             if (gameStatus == 1) {
                 return (false, "The game already started");
+            } else if (msg.sender == player1) {
+                nPlayers = 1;
+                gameStatus = 0;
+                balances[msg.sender] = msg.value;
+                balances[player2] = 0;
+                player2 = address(0);
+                player1RandNum = random();
+                winner = 0;
+                resetBoard();
+                return (true, "Restart game");
             } else {
                 return (false, "The game is over");
             }
@@ -128,6 +138,17 @@ contract ConnectFour {
         }
     }
 
+    /**
+     * Reset board states and column states
+     */
+    function resetBoard() private {
+        for (uint i = 0; i < N; i++) {
+            colState[i] = 0;
+            for (uint j = 0; j < M; j++) {
+                board[i][j] = SquareState.Empty;
+            }
+        }
+    }
 
     function getBoard() public view returns (SquareState[6][7] memory) {
         return board;
