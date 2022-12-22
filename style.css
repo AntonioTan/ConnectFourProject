@@ -20,7 +20,7 @@ h1 {
 
 .column {
     float: left;
-    width: 42%;
+    width: 50%;
 }
 .row:after {
     content: "";
