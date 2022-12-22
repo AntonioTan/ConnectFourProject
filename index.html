@@ -21,73 +21,84 @@
     <body>
         <h1>Connect Four</h1>
 
-        Create a new game: <br><br>
-        <input type="number" id="value-toplay" placeholder="Value (GWei)"></input>
-        <button id="new-game">New Game</button> <br><br>
-        <div id="newGameAddress"></div>        
-
-        Or join an existing game below: <br><br>
-        <input type="text" id="contract-ID-tojoin" placeholder="Contract Address"></input>
-        <button id="join-game">Join Game</button> <br><br>
-        <div id="player"></div>
-        <div class="container">
-            <ul id="game">
-                <!-- first row -->
-                <li data-pos="0"></li>
-                <li data-pos="1"></li>
-                <li data-pos="2"></li>
-                <li data-pos="3"></li>
-                <li data-pos="4"></li>
-                <li data-pos="5"></li>
-                <li data-pos="6"></li>
-                <!-- second row -->
-                <li data-pos="7"></li> 
-                <li data-pos="8"></li>
-                <li data-pos="9"></li>
-                <li data-pos="10"></li> 
-                <li data-pos="11"></li>
-                <li data-pos="12"></li>
-                <li data-pos="13"></li>
-                <!-- third row -->
-                <li data-pos="14"></li>
-                <li data-pos="15"></li>
-                <li data-pos="16"></li>
-                <li data-pos="17"></li> 
-                <li data-pos="18"></li>
-                <li data-pos="19"></li>
-                <li data-pos="20"></li>
-                <!-- forth row -->
-                <li data-pos="21"></li> 
-                <li data-pos="22"></li>
-                <li data-pos="23"></li>
-                <li data-pos="24"></li> 
-                <li data-pos="25"></li>
-                <li data-pos="26"></li>
-                <li data-pos="27"></li>
-                <!-- fifth row -->
-                <li data-pos="28"></li> 
-                <li data-pos="29"></li>
-                <li data-pos="30"></li> 
-                <li data-pos="31"></li>
-                <li data-pos="32"></li>
-                <li data-pos="33"></li>
-                <li data-pos="34"></li>
-                <!-- sixth row -->
-                <li data-pos="35"></li> 
-                <li data-pos="36"></li>
-                <li data-pos="37"></li>
-                <li data-pos="38"></li> 
-                <li data-pos="39"></li>
-                <li data-pos="40"></li>
-                <li data-pos="41"></li>
-            </ul>
+        <br><br>
+        <div class="row">
+            <div class="column">
+                <div class="container">
+                    <ul id="game">
+                        <!-- first row -->
+                        <li data-pos="0"></li>
+                        <li data-pos="1"></li>
+                        <li data-pos="2"></li>
+                        <li data-pos="3"></li>
+                        <li data-pos="4"></li>
+                        <li data-pos="5"></li>
+                        <li data-pos="6"></li>
+                        <!-- second row -->
+                        <li data-pos="7"></li> 
+                        <li data-pos="8"></li>
+                        <li data-pos="9"></li>
+                        <li data-pos="10"></li> 
+                        <li data-pos="11"></li>
+                        <li data-pos="12"></li>
+                        <li data-pos="13"></li>
+                        <!-- third row -->
+                        <li data-pos="14"></li>
+                        <li data-pos="15"></li>
+                        <li data-pos="16"></li>
+                        <li data-pos="17"></li> 
+                        <li data-pos="18"></li>
+                        <li data-pos="19"></li>
+                        <li data-pos="20"></li>
+                        <!-- forth row -->
+                        <li data-pos="21"></li> 
+                        <li data-pos="22"></li>
+                        <li data-pos="23"></li>
+                        <li data-pos="24"></li> 
+                        <li data-pos="25"></li>
+                        <li data-pos="26"></li>
+                        <li data-pos="27"></li>
+                        <!-- fifth row -->
+                        <li data-pos="28"></li> 
+                        <li data-pos="29"></li>
+                        <li data-pos="30"></li> 
+                        <li data-pos="31"></li>
+                        <li data-pos="32"></li>
+                        <li data-pos="33"></li>
+                        <li data-pos="34"></li>
+                        <!-- sixth row -->
+                        <li data-pos="35"></li> 
+                        <li data-pos="36"></li>
+                        <li data-pos="37"></li>
+                        <li data-pos="38"></li> 
+                        <li data-pos="39"></li>
+                        <li data-pos="40"></li>
+                        <li data-pos="41"></li>
+                    </ul>
             
-            <!-- Game Messages -->
-            <div id="game-messages"></div>
+                </div>
 
-            <div id="whos-turn"></div>
+            </div>
+            <div class="column">
+                <br><br>
+                Create a new game: <br><br>
+                <input type="number" id="value-toplay" placeholder="Value (GWei)"></input>
+                <button id="new-game">New Game</button> <br><br>
+                <div id="newGameAddress"></div>        
+
+                Or join an existing game below: <br><br>
+                <input type="text" id="contract-ID-tojoin" placeholder="Contract Address"></input>
+                <button id="join-game">Join Game</button> <br><br>
+                <br><br>
+                <div id="player"></div>
+                <br>
+                <!-- Game Messages -->
+                <div id="game-messages"></div>
+
+                <div id="whos-turn"></div>
                 
-            </aside>
+                </aside>
+            </div>
         </div>
     </body>
 </html>
